@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Teams Chat</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- 3-Pane Layout: Rail | Sidebar | Main -->
+  <div class="app-container">
+    
+    <!-- Left Rail (56px) -->
+    <div class="rail">
+      <div class="rail-header">
+        <div class="app-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="6" fill="#6264A7"/>
+            <path d="M8 12h7v-4h-7v4zm0 8h7v-7h-7v7zm8 0h8v-11h-8v11zm0 0" fill="white"/>
+          </svg>
+        </div>
+      </div>
+      <div class="rail-items">
+        <div class="rail-item active" data-tooltip="Chat">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar (260px) -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="sidebar-title">HR Chat</h1>
+      </div>
+
+      <!-- User Profile Section -->
+      <div class="user-profile-section">
+        <div class="profile-card">
+          <div class="profile-inputs">
+            <input 
+              type="text" 
+              id="username" 
+              class="profile-input" 
+              placeholder="Your name"
+              data-testid="input-username"
+            />
+            <select id="userRole" class="profile-select" data-testid="select-role">
+              <option value="Employee">Employee</option>
+              <option value="HR">HR</option>
+            </select>
+          </div>
+          <button id="setUserBtn" class="btn-primary" data-testid="button-set-user">Set</button>
+        </div>
+        <div id="currentUserDisplay" class="current-user-display" style="display: none;">
+          <div class="user-avatar">
+            <span id="userInitials" class="user-initials">U</span>
+          </div>
+          <div class="user-info">
+            <div class="user-name" id="displayName">User</div>
+            <div class="user-role-badge">
+              <span id="displayRole">Employee</span>
+            </div>
+          </div>
+          <button id="changeUserBtn" class="btn-ghost-small" data-testid="button-change-user">Change</button>
+        </div>
+      </div>
+
+      <!-- Channels List -->
+      <div class="channels-section">
+        <div class="channels-header">
+          <h2 class="channels-title">Channels</h2>
+        </div>
+        <div class="channels-list">
+          <div class="channel-item active" data-room="general" data-testid="channel-general">
+            <span class="channel-icon">#</span>
+            <span class="channel-name">general</span>
+          </div>
+          <div class="channel-item" data-room="hr-announcements" data-testid="channel-hr-announcements">
+            <span class="channel-icon">#</span>
+            <span class="channel-name">hr-announcements</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Poll Button (HR Only) -->
+      <div class="sidebar-actions">
+        <button id="newPollBtn" class="btn-secondary" disabled data-testid="button-new-poll">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Poll (HR)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main-content">
+      <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+          <div class="welcome-icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+              <rect width="64" height="64" rx="12" fill="#F3F2F1"/>
+              <path d="M42 30a4 4 0 0 1-4 4H22l-8 8V22a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4z" fill="#6264A7"/>
+            </svg>
+          </div>
+          <h2 class="welcome-title">Welcome to HR Teams Chat</h2>
+          <p class="welcome-text">Enter your name and role to get started</p>
+        </div>
+      </div>
+
+      <div id="chatScreen" class="chat-screen" style="display: none;">
+        <!-- Top Bar -->
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <span class="channel-icon-large">#</span>
+            <h2 class="chat-title" id="currentRoomName">general</h2>
+          </div>
+          <div class="chat-header-right">
+            <div class="user-badge" id="chatUserBadge">
+              <span class="badge-text">You (<span id="chatUserRole">Employee</span>)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Poll Panel -->
+        <div id="pollPanel" class="poll-panel" style="display: none;">
+          <div class="poll-card">
+            <div class="poll-header">
+              <h3 class="poll-question" id="pollQuestion" data-testid="text-poll-question">Loading poll...</h3>
+              <button id="closePollBtn" class="btn-ghost-small" style="display: none;" data-testid="button-close-poll">Close Poll</button>
+            </div>
+            <div class="poll-options" id="pollOptions">
+              <!-- Poll options will be inserted here -->
+            </div>
+            <div class="poll-footer" id="pollFooter">
+              <span class="poll-status" id="pollStatus">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer">
+          <div class="messages-list" id="messagesList">
+            <!-- Messages will be appended here -->
+          </div>
+        </div>
+
+        <!-- Composer -->
+        <div class="composer" id="composer">
+          <div class="composer-inner">
+            <input 
+              type="text" 
+              id="messageInput" 
+              class="composer-input" 
+              placeholder="Type a message"
+              data-testid="input-message"
+            />
+            <button id="sendBtn" class="btn-send" data-testid="button-send">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Poll Modal -->
+  <div id="pollModal" class="modal" style="display: none;" role="dialog" aria-labelledby="pollModalTitle" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="pollModalTitle" class="modal-title">Create New Poll</h3>
+        <button class="modal-close" id="closePollModal" data-testid="button-close-modal" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="pollQuestionInput" class="form-label">Question</label>
+          <input 
+            type="text" 
+            id="pollQuestionInput" 
+            class="form-input" 
+            placeholder="What would you like to ask?"
+            data-testid="input-poll-question"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div id="pollOptionsInputs">
+            <input type="text" class="form-input poll-option-input" placeholder="Option 1" data-testid="input-poll-option-0" />
+            <input type="text" class="form-input poll-option-input" placeholder="Option 2" data-testid="input-poll-option-1" />
+          </div>
+          <button id="addPollOption" class="btn-ghost-small" data-testid="button-add-option">+ Add Option</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelPollBtn" class="btn-secondary" data-testid="button-cancel-poll">Cancel</button>
+        <button id="createPollBtn" class="btn-primary" data-testid="button-create-poll">Create Poll</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.IO Client -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
