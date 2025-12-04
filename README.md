@@ -303,4 +303,77 @@ MIT
 
 ---
 
+### AI Text Enhancer Assistant
+Overview
+
+    The AI Text Enhancer is an integrated micro-assistant that rewrites, simplifies, or polishes HR-related messages directly inside the chat interface.
+    It acts as a lightweight generative-AI writing helper powered by Ollama, connected through the /api/ai/assist backend endpoint.
+
+✨ Key Features
+
+    Modes: polish, simplify, accept, decline, ask_clarify
+
+    Tone Control: formal, friendly, neutral
+
+    Reply Style: chat (Teams-style short replies) or email (with greeting + sign-off)
+
+    Formatting Options: paragraph or bullets
+
+    Role Direction: Supports both Employee → HR and HR → Employee rewriting flows
+
+💡 Usage Flow
+
+    Open the Text Enhancer panel from the sidebar.
+
+    Type or paste your draft message.
+
+    Choose the desired transformation options (mode, tone, role).
+
+    Click Generate → the AI produces the rewritten version.
+
+    Click Use this (paste to chat) to insert it into the composer instantly.
+
+⚙️ Backend Logic
+
+    Defined in server.js (or routes/assist.js):
+
+    app.post('/api/ai/assist', async (req, res) => {
+      const { hrMessage = '', draft = '', mode = 'polish',
+              tone = 'neutral', replyStyle = 'chat',
+              length = 'short', format = 'paragraph' } = req.body;
+      // Builds SYSTEM + USER prompts and calls Ollama
+    });
+
+
+      Model: qwen2.5:3b (configurable via process.env.OLLAMA_MODEL)
+
+      Engine: Local LLM inference using Ollama (http://127.0.0.1:11434)
+
+      Output: Returns only the final rewritten message — no metadata or extra text.
+
+🖥️ Frontend Logic
+
+    Implemented in public/ai.js:
+
+    Handles drawer open/close events.
+
+    Reads selected dropdown values (mode, tone, role).
+
+    Sends a fetch('/api/ai/assist') request with JSON payload.
+
+    Displays AI output in a preview box.
+
+    Enables quick Paste to Chat or Copy actions.
+
+🧩 Example Input / Output
+      Input	Output (Polish + Formal + Employee → HR)
+      hi sir tomorrow i am leaving to beijing so please let me know if there is anything imp	Dear Sir, I’ll be leaving for Beijing tomorrow to attend the meeting. Please let me know if there’s anything important I should take care of.
+🧰 Dependencies
+
+      Ollama – Local LLM runner
+
+      Node Fetch API – Backend communication
+
+      Vanilla JS / Fetch – Frontend integration
+
 **Built with ❤️ for HR Teams**
