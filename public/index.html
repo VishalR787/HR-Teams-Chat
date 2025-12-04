@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HR Teams Chat</title>
+  <title>ChatSphere</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -32,7 +32,7 @@
     <!-- Sidebar (260px) -->
     <div class="sidebar">
       <div class="sidebar-header">
-        <h1 class="sidebar-title">HR Chat</h1>
+        <h1 class="sidebar-title">ChatSphere</h1>
       </div>
 
       <!-- User Profile Section -->
@@ -94,7 +94,15 @@
           New Poll (HR)
         </button>
       </div>
+      <div class="card" style="margin:10px;">
+        <button id="openAssistant"
+                style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;cursor:pointer">
+          ✨ TextEnhancer
+        </button>
+      </div>
+
     </div>
+   
 
     <!-- Main Chat Area -->
     <div class="main-content">
@@ -141,29 +149,87 @@
           </div>
         </div>
 
-        <!-- Messages Container -->
-        <div class="messages-container" id="messagesContainer">
-          <div class="messages-list" id="messagesList">
-            <!-- Messages will be appended here -->
-          </div>
-        </div>
+        <div class="chat-wrapper">
 
-        <!-- Composer -->
-        <div class="composer" id="composer">
-          <div class="composer-inner">
-            <input 
-              type="text" 
-              id="messageInput" 
-              class="composer-input" 
-              placeholder="Type a message"
-              data-testid="input-message"
+          <div class="messages-container" id="messagesContainer">
+            <div class="messages-list" id="messagesList"></div>
+          </div>
+          <form id="composer" class="composer">
+            <input
+              type="text"
+              id="messageInput"
+              class="composer-input"
+              placeholder="Type a message…"
+              autocomplete="off"
             />
-            <button id="sendBtn" class="btn-send" data-testid="button-send">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="submit" id="sendBtn" class="btn-send" aria-label="Send">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
             </button>
+          </form>
+
+        </div>
+
+
+        <!-- Assistant Drawer -->
+        <div id="assistantDrawer"
+            style="position:fixed;top:0;right:-420px;width:420px;height:100%;
+                    background:#fff;box-shadow:-8px 0 20px rgba(0,0,0,.15);
+                    transition:right .25s ease;z-index:9999;display:flex;flex-direction:column;">
+          <div style="padding:12px 14px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+            <strong>Text Enhancer</strong>
+            <button id="closeAssistant" style="border:none;background:#eee;padding:4px 8px;border-radius:6px;cursor:pointer">✕</button>
+          </div>
+
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto">
+            <label style="font-size:12px;color:#666">Type anything to polish / transform</label>
+            <textarea id="assistInput" rows="6" placeholder="Write your text here…"
+                      style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;"></textarea>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="assistMode" style="padding:6px;border-radius:8px;border:1px solid #ddd;">
+                <option value="polish">Polish</option>
+                <option value="simplify">Simplify</option>
+                <option value="ask_clarify">Ask Clarify</option>
+                <option value="bullet">Bullet</option>
+              </select>
+
+              <select id="assistTone" style="padding:6px;border-radius:8px;border:1px solid #ddd;">
+                <option value="neutral">Neutral</option>
+                <option value="formal">Formal</option>
+                <option value="friendly">Informal</option>
+              </select>
+
+              <select id="assistRole" style="padding:6px;border-radius:8px;border:1px solid #ddd;">
+                <option value="employee">Employee → HR</option>
+                <option value="hr">HR → Employee</option>
+                <option value="peer">Peer ↔ Peer</option>
+              </select>
+
+
+              <button id="assistRun" style="padding:6px 10px;border-radius:8px;border:1px solid #111;background:#111;color:#fff;cursor:pointer">
+                Generate
+              </button>
+            </div>
+
+            <label style="font-size:12px;color:#666;margin-top:6px">AI suggestion</label>
+            <textarea id="assistOut" rows="6" readonly
+                      style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;"></textarea>
+
+            <div style="display:flex;gap:8px">
+              <button id="assistUse"
+                      style="padding:6px 10px;border-radius:8px;border:1px solid #2d6cdf;background:#2d6cdf;color:#fff;cursor:pointer">
+                Use this (paste to chat)
+              </button>
+              <button id="assistCopy"
+                      style="padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer">
+                Copy
+              </button>
+            </div>
+            <div id="assistWhy" style="font-size:12px;color:#666"></div>
           </div>
         </div>
       </div>
@@ -212,6 +278,7 @@
 
   <!-- Socket.IO Client -->
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/ai.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

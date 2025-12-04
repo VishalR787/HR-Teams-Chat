@@ -91,6 +91,11 @@ function setupEventListeners() {
   // User setup
   elements.setUserBtn.addEventListener('click', handleSetUser);
   elements.changeUserBtn.addEventListener('click', handleChangeUser);
+
+  elements.composer.addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendMessage();
+  });
   
   // Enter key in username input
   elements.usernameInput.addEventListener('keypress', (e) => {
@@ -106,7 +111,11 @@ function setupEventListeners() {
   });
   
   // Message sending
-  elements.sendBtn.addEventListener('click', sendMessage);
+   elements.sendBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    sendMessage();
+  });
+
   elements.messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -291,7 +300,7 @@ function createMessageElement(message) {
   const div = document.createElement('div');
   div.className = 'message';
   div.dataset.testid = `message-${Date.now()}`;
-  
+
   // Get initials for avatar
   const initials = message.user
     .split(' ')
@@ -299,23 +308,37 @@ function createMessageElement(message) {
     .join('')
     .toUpperCase()
     .substring(0, 2);
-  
+
   // Avatar class based on role
   const avatarClass = message.role === 'system' ? 'system' : message.role === 'HR' ? 'hr' : '';
-  
+
   // Role badge class
   const roleClass = message.role === 'system' ? 'system' : message.role === 'HR' ? 'hr' : '';
-  
+
   // Format timestamp
   const time = new Date(message.createdAt).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit'
   });
-  
+
   // Check if message is a command
   const isCommand = message.text.startsWith('/');
   const commandChip = isCommand ? '<span class="command-chip">Command</span>' : '';
-  
+
+  // Spotify embed detection
+  let content = message.text;
+  const spotifyRegex = /https:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/;
+  const match = message.text.match(spotifyRegex);
+
+  if (match) {
+    const type = match[1];
+    const id = match[2];
+    const embedUrl = `https://open.spotify.com/embed/${type}/${id}`;
+    content = `<iframe src="${embedUrl}" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`;
+  } else {
+    content = escapeHtml(message.text);
+  }
+
   div.innerHTML = `
     <div class="message-avatar ${avatarClass}">${initials}</div>
     <div class="message-content">
@@ -325,11 +348,11 @@ function createMessageElement(message) {
         <span class="message-time">${time}</span>
       </div>
       <div class="message-text">
-        ${commandChip}${escapeHtml(message.text)}
+        ${commandChip}${content}
       </div>
     </div>
   `;
-  
+
   return div;
 }
 
